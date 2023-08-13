@@ -28,6 +28,8 @@ If the software calling this program is another user, you need to add it to sudo
 %user ALL=(pycert) NOPASSWD: ocsp.py*
 ```
 Replace %user by the user or the group calling the script.
+## Debugging
+If you have any issues, change log in `config.ini` to DEBUG and read log in `/var/log/ocsp_py.log`.
 ## MySql tables
 This script requires a table like this :
 ```
