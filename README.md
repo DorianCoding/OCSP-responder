@@ -17,8 +17,17 @@ catching OCSP requests and delivering OCSP responses.
 1) Clone the repo `git clone https://github.com/DorianCoding/OCSP_MySql.git`
 2) Give execute permission to creation.sh `chmod u+x creation.sh` and execute it as root `sudo ./creation.sh`.
 3) Edit config.ini file in `/etc/ocsp_py/config.ini`
-4) Attach your socket-listening app to the ocsp.py binary, in the bin folder.
-5) Enjoy :smile:
+4) Give ownership and rights to `pycert` user only : `sudo chown pycert:pycert file && sudo chmod 600 file`
+5) Attach your socket-listening app to the ocsp.py binary, in the bin folder. For this run `sudo -u pycert ocsp.py file`.
+6) Enjoy :smile:
+## Sudo implementations
+If the software calling this program is another user, you need to add it to sudoers so it can run the program as pycert like this :
+1) Run `sudo visudo`
+2) Add this line at the end of the file and before `#includedir` line if exists
+```
+%user ALL=(pycert) NOPASSWD: ocsp.py*
+```
+Replace %user by the user or the group calling the script.
 ## MySql tables
 This script requires a table like this :
 ```
