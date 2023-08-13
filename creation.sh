@@ -14,14 +14,26 @@ if [[ ! -d "/home/pycert" ]]
   then mkdir /home/pycert
   exit
 echo "Creating configuration file"
-sudo mkdir /etc/ocsp_py
+mkdir /etc/ocsp_py
+if [ $? -ne 0 ]
+  then echo "Error adding etc folder, exiting"
+  exit
+fi
 echo "Creating binaries"
-sudo cp ocsp.py /bin/ocsp.py
-chown pycert:pycert /bin/ocsp.py
+cp ocsp.py /bin/ocsp.py
+chown pycert: /bin/ocsp.py
 chmod 700 /bin/ocsp.py
 cp config.ini /etc/ocsp_py/
 chmod u=rwX,g=,o= /etc/ocsp_py
+if [ $? -ne 0 ]
+  then echo "Error setting binaries, exiting"
+  exit
+fi
 echo "Creating logs"
 touch /var/log/ocsp_py.log
-chown pycert:pycert /var/log/ocsp_py.log
-chmod 700 /var/log/ocsp_py.log
+chown pycert:adm /var/log/ocsp_py.log
+chmod 640 /var/log/ocsp_py.log
+if [ $? -ne 0 ]
+  then echo "Error setting logs, exiting"
+  exit
+fi
