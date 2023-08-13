@@ -29,7 +29,7 @@ def checkit(serialnumber,ocspserial):
 			result=file.read()
 		with open(sys.argv[1],"wb") as file:
 			file.write(result)
-		logging.debug("Sending cached response for OCSP certificate")
+		logging.debug("Sending cached response for OCSP intermediate certificate")
 		sys.exit(0)
 def existresponse(fileres):
 	with open(fileres,"rb") as file:
@@ -52,7 +52,7 @@ def timing(time):
 	elif elem.lower()=="d":
 		return int(days)
 def error(ex,types="trylater"):
-	logging.debug(ex)
+	logging.warn("Error setting %s",ex)
 	if types=="request":
 		response = ocsp.OCSPResponseBuilder.build_unsuccessful(
     			ocsp.OCSPResponseStatus.MALFORMED_REQUEST
@@ -82,6 +82,11 @@ if os.access("/etc/ocsp_py/config.ini", os.R_OK) == 0: #File is not accessible
 parser=configuration_from_ini("/etc/ocsp_py/config.ini")
 try:
 	log=trim(parser.get("db","log"))
+       log=logging.getLevelName(log)
+       if not isinstance(log, int):
+               logging.critical("Logging level is incorrect")
+               sys.exit(1)
+       logging.getLogger().setLevel(log)
 	host=trim(parser.get("db","host"))
 	username=trim(parser.get("db","username"))
 	password=trim(parser.get("db","password"))
