@@ -3,7 +3,7 @@ if [ "$EUID" -ne 0 ]
   then echo "You need to be root to execute this script."
   exit
 fi
-echo "Creating pycert user"
+echo "Creating pycert user and group"
 adduser -K PASS_MAX_DAYS=-1 -m -r pycert
 if [ $? -ne 0 ]
   then echo "Error while creating the user, exiting"
