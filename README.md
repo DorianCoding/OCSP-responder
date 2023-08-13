@@ -17,6 +17,19 @@ catching OCSP requests and delivering OCSP responses.
 3) Edit config.ini file in `/etc/ocsp_py/config.ini`
 4) Attach your socket-listening app to the ocsp.py binary, in the bin folder.
 5) Enjoy :smile:
+## MySql tables
+This script requires a table like this :
+```
+CREATE TABLE `list_certs` (
+  `cert_num` varchar(50) NOT NULL,
+  `revocation_time` datetime DEFAULT NULL,
+  `revocation_reason` enum('unspecified','key_compromise','ca_compromise','affiliation_changed','superseded','cessation_of_operation','certificate_hold','privilege_withdrawn','aa_compromise') DEFAULT NULL,
+  `cert` blob NOT NULL,
+  `status` enum('Valid','Revoked') NOT NULL DEFAULT 'Valid',
+  PRIMARY KEY (`cert_num`),
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+```
+- The certificate number **must be unique** and stars with 0x (like a hex number). Cert must contain the certificate.
 ## Input
 This software requires an OCSP request in binary form in a file. The script must be called like : `ocsp.py file.req` with `file.req` the binary file containing the request. A request look like this (**in base64 format**), the binary form (DER format) is not human-readable but is the one needed :
 ```
