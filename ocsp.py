@@ -75,6 +75,10 @@ if pwd.getpwuid(os.getuid())[0]!="pycert":
 	logging.critical("Bad user. Pycert is required. - Exiting")
 	sys.exit(1) #Do not send any data.
 signal.signal(signal.SIGTERM, sigterm_handler)
+signal.signal(signal.SIGINT, sigterm_handler)
+if os.access("/etc/ocsp_py/config.ini", os.R_OK) == 0: #File is not accessible
+	logging.critical("Config file is not detected");
+	sys.exit(1)
 parser=configuration_from_ini("/etc/ocsp_py/config.ini")
 try:
 	log=trim(parser.get("db","log"))
@@ -83,6 +87,7 @@ try:
 	password=trim(parser.get("db","password"))
 	db=trim(parser.get("db","db"))
 	port=int(trim(parser.get("db","port")))
+	socket=trim(parser.get("db","socket"))
 	producetime=timing(parser.get("ocsp","producetime"))
 	ocspcert=trim(parser.get("ocsp","cert"))
 	ocspprivatekey=trim(parser.get("ocsp","pkey"))
@@ -93,9 +98,8 @@ try:
 	ocspresponse=trim(parser.get("ocsp","ocspresponse"))
 	cache=trim(parser.get("ocsp","cache"))
 except Exception as ex:
-	logging.critical("The configuration file is corrupted! - Exiting...")
+	logging.critical("The configuration file is corrupted! - Exiting... Error is %s",ex)
 	error(ex)
-	sys.exit(1)
 logging.debug("All config parameters okay")
 try:
 	with open(ocspprivatekey,"rb") as file:
@@ -126,22 +130,31 @@ try:
 	logging.debug("Certificate is a leaf")
 	issuer_hash=ocsp_req.issuer_key_hash
 	issuer_name=ocsp_req.issuer_name_hash
-	if !os.path.isdir(cache + "/"):
+	if not os.path.isdir(cache):
 		try:
 			os.mkdir(cache,700)
 			logging.info("Cache folder created")
 		except Exception as ex:
-			logging.error("Cache folder does not exist and cannot be created, cannot cache answers")
-	if os.path.exists(cache + "/" + serialnumber):
-		resp=existresponse(cache + "/" + serialnumber)
+			logging.critical("Cache folder does not exist and cannot be created, cannot cache answers")
+			error(ex)
+	if os.path.exists(os.path.join(cache,serialnumber)):
+		resp=existresponse(os.path.join(cache,serialnumber))
+		print(resp)
 		if resp!=False:
 			logging.debug("Certificate response for %s sent from cache",serialnumber)
-			with open(sys.argv[1],"wb") as file:
-				file.write(resp)
+			try:
+				with open(sys.argv[1],"wb") as file:
+					file.write(resp)
+			except Exception as ex:
+				logging.error("Error writing cache to file : %s",ex)
+				error(ex) #Send try later
 			sys.exit(0)
 	response=ocsp.OCSPResponseBuilder()
 	try:
-		cnx = mysql.connector.connect(host=host, user=username, password=password, database=db, port=port)
+		if socket=="1":
+			cnx = mysql.connector.connect(host=host, user=username, password=password, database=db, unix_socket="/run/mysqld/mysqld.sock")
+		else:
+			cnx = mysql.connector.connect(host=host, user=username, password=password, database=db, port=port)
 	except Exception as ex:
 		logging.critical("Cannot connect to database on %s - Exiting",host)
 		logging.debug("Error: %s",ex)
