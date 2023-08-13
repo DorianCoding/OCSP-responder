@@ -7,6 +7,7 @@ catching OCSP requests and delivering OCSP responses.
 - A CA certificate (self-signed allowed) and an intermediate CA that will sign leaf certificates.
 - A socket-listening app catching OCSP requests and delivering OCSP responses.
 - Python 3.0 with `cryptography`, `mysql.connector`, `signal` and `logging`
+- The intermediate certificate must be validated by the root certificate and the OCSP response stored in a file written in `ocspresponse`. `Many browsers also checks intermediate certificates` and for security, these responses should be created offline.
 ## What is done
 - Extract OCSP requests, verify it is a signed certificate by the CA, check in the database if it is good or revoked and sign the response. It also caches answers for the duration of the signed response.
 - Create a specific user for this task to ensure protection for intermediate certificate, as the private key is required.
