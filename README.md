@@ -1,3 +1,5 @@
+[![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
+[![Github stars](https://img.shields.io/github/stars/DorianCoding/OCSP_MySql.svg)](https://github.com/DorianCoding/OCSP_MySql/stargazers)
 # OCSP server connected to MySql Database
 This software implements a OCSP responder in Python, fetching certificate status in a Mysql Database. It needs to be implemented with a socket-listening app
 catching OCSP requests and delivering OCSP responses.
@@ -99,3 +101,5 @@ OCSP Response Data:
          6e:54:1a:26:f2:ee:e6:d7:35:4c:92:ca:b5:83:f9:b9:4a:d1:
          98:31:2e:7c
 ```
+### Licence
+* Apache 2.0 Licence
